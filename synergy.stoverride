@@ -1,0 +1,80 @@
+# Stash Override - 奶昔机场定制
+# 功能：
+# 1. usa-fixed-ip（Socks5 固定美国 IP，Claude 专用）
+# 2. Auto / HK / US / JP 自动选优组
+# 3. Claude/Anthropic 域名走 Claude 组
+# 4. USA-Relay 为 usa-fixed-ip 提供中转
+
+name: "Synergy Custom"
+desc: "usa-fixed-ip + 地区分组 + Claude 分流"
+
+proxies:
+  - name: "usa-fixed-ip"
+    type: socks5
+    server: "89.47.126.212"
+    port: 12324
+    username: "hcmcloud"
+    password: "hcmcloud"
+    udp: true
+    dialer-proxy: "USA-Relay"
+
+proxy-groups:
+  # usa-fixed-ip 的中转组（默认 HK-Auto，可手动切其他 HK/US/JP 节点）
+  - name: "USA-Relay"
+    type: select
+    include-all-proxies: true
+    filter: 'Hong Kong|USA|Japan'
+    proxies:
+      - "HK-Auto"
+
+  # Claude 专用（默认 usa-fixed-ip，可手动切 US-Auto / Auto）
+  - name: "Claude"
+    type: select
+    proxies:
+      - "usa-fixed-ip"
+      - "US-Auto"
+      - "Auto"
+
+  # 全部节点自动选优（排除信息行和 usa-fixed-ip）
+  - name: "Auto"
+    type: url-test
+    include-all-proxies: true
+    exclude-filter: 'Traffic|Expire|\d+\.\d+ G|usa-fixed-ip'
+    url: "http://www.gstatic.com/generate_204"
+    interval: 300
+    tolerance: 50
+
+  # 香港节点自动选优
+  - name: "HK-Auto"
+    type: url-test
+    include-all-proxies: true
+    filter: 'Hong Kong'
+    url: "http://www.gstatic.com/generate_204"
+    interval: 300
+    tolerance: 50
+
+  # 美国节点自动选优
+  - name: "US-Auto"
+    type: url-test
+    include-all-proxies: true
+    filter: 'USA'
+    url: "http://www.gstatic.com/generate_204"
+    interval: 300
+    tolerance: 50
+
+  # 日本节点自动选优
+  - name: "JP-Auto"
+    type: url-test
+    include-all-proxies: true
+    filter: 'Japan'
+    url: "http://www.gstatic.com/generate_204"
+    interval: 300
+    tolerance: 50
+
+rules:
+  # Claude/Anthropic 域名走 Claude 组（前插，优先级最高）
+  - DOMAIN-SUFFIX,anthropic.com,Claude
+  - DOMAIN-SUFFIX,claude.ai,Claude
+  - DOMAIN-SUFFIX,claude.com,Claude
+  - DOMAIN-SUFFIX,claudeusercontent.com,Claude
+  - DOMAIN-SUFFIX,oaistatic.com,Claude
