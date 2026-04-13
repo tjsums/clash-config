@@ -22,10 +22,13 @@ proxy-groups:
   # usa-fixed-ip 的中转组（默认 HK-Auto，可手动切其他 HK/US/JP 节点）
   - name: "USA-Relay"
     type: select
-    include-all-proxies: true
+    use:
+      - "服务提供商-1"
     filter: 'Hong Kong|USA|Japan'
     proxies:
       - "HK-Auto"
+      - "US-Auto"
+      - "JP-Auto"
 
   # Claude 专用（默认 usa-fixed-ip，可手动切 US-Auto / Auto）
   - name: "Claude"
