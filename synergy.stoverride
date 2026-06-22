@@ -81,3 +81,4 @@ rules:
   - DOMAIN-SUFFIX,claude.com,Claude
   - DOMAIN-SUFFIX,claudeusercontent.com,Claude
   - DOMAIN-SUFFIX,oaistatic.com,Claude
+  - DOMAIN-SUFFIX,980671.com,DIRECT
